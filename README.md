@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Musical Dice
 
-## Getting Started
+**Musical Dice** is a web application inspired by Wolfgang Amadeus Mozart's famous **Musikalisches Würfelspiel** (Musical Dice Game).
 
-First, run the development server:
+The application provides a modern interactive version of the game, allowing users to select which minuetti to include, generate a random 12-bar sequence, and listen to the resulting composition.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The project was originally developed as a vanilla JavaScript application and has been migrated to **Next.js, React, and TypeScript** while preserving the original functionality and visual design.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Listen to all 12 original minuetti individually.
+- Select which minuetti should be included in the randomisation.
+- Randomly generate a 12-bar composition.
+- Listen to individual musical cells.
+- Play the complete generated composition sequentially.
+- Stop and replay the generated composition.
+- Visual feedback for:
+  - Selected cells
+  - Currently playing cells
+  - Currently playing minuetti
+  - Disabled cells while the composition is playing
+- Responsive layout for desktop and mobile devices.
+- Animated mobile navigation.
+- About Me modal.
+- Contact form with email delivery through EmailJS.
+- Smooth scrolling navigation.
+- Back-to-top button.
+- Responsive Bootstrap-based layout.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Technology
 
-## Learn More
+The application is built with:
 
-To learn more about Next.js, take a look at the following resources:
+- **Next.js** — React framework using the App Router.
+- **React** — Component-based user interface.
+- **TypeScript** — Type-safe application code.
+- **Howler.js** — Audio playback and sequencing.
+- **EmailJS** — Contact form email delivery.
+- **Bootstrap 4.4.1** — Responsive layout and components.
+- **Bootswatch Superhero** — Bootstrap theme.
+- **Font Awesome** — Icons.
+- **Montserrat** — Application typography.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+MUSICAL-DICE/
+├── app/
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+│
+├── components/
+│   ├── AboutModal.tsx
+│   ├── AboutSection.tsx
+│   ├── AvailableGrid.tsx
+│   ├── BackToTop.tsx
+│   ├── ContactModal.tsx
+│   ├── ContactSection.tsx
+│   ├── MinuettoList.tsx
+│   ├── MinuettoSelector.tsx
+│   └── MusicGame.tsx
+│
+├── public/
+│   └── assets/
+│       ├── images/
+│       └── music/
+│           ├── cells/
+│           ├── full/
+│           └── randomiser/
+│
+├── package.json
+├── package-lock.json
+└── tsconfig.json
