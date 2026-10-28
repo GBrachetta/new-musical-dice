@@ -8,7 +8,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Working preferences
+## Working preferences
 
 - Before editing files, briefly explain the changes you plan to make and why. Keep the scope small and communicate material changes in direction before proceeding.
 - Keep work agile and economical: use focused reads and checks, avoid unnecessary tool calls or repeated verification, and do not delegate to additional agents unless requested.
