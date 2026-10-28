@@ -8,12 +8,14 @@ type AvailableGridProps = {
   playingBar: string | null;
   isPlayingSequence: boolean;
   onBarClick: (id: string) => void;
+  onToggle: (letter: string) => void;
 };
 
 export default function AvailableGrid({
   alphabet,
   isPlayingSequence,
   onBarClick,
+  onToggle,
   playingBar,
   randomIDs,
 }: AvailableGridProps) {
@@ -22,14 +24,19 @@ export default function AvailableGrid({
 
   return (
     <div className="fragment-grid">
-      <label className="grid-filter">
-        <input
-          checked={onlySelected}
-          onChange={(event) => setOnlySelected(event.target.checked)}
-          type="checkbox"
-        />
-        Only show selected minuetti
-      </label>
+      <div className="grid-filter">
+        <button
+          aria-checked={onlySelected}
+          aria-labelledby="selected-minuetti-label"
+          className="row-switch"
+          onClick={() => setOnlySelected(!onlySelected)}
+          role="switch"
+          type="button"
+        >
+          <span />
+        </button>
+        <span id="selected-minuetti-label">Only show selected minuetti</span>
+      </div>
       <div
         aria-label="Musical fragments; scroll horizontally on small screens"
         className="grid-scroll"
@@ -53,7 +60,20 @@ export default function AvailableGrid({
               className={`fragment-row ${alphabet.includes(letter) ? "" : "excluded-row"}`}
               key={letter}
             >
-              <span className="fragment-row-label">{letter}</span>
+              <div className="fragment-row-control">
+                <button
+                  aria-checked={alphabet.includes(letter)}
+                  aria-label={`Include Minuetto ${letter} in randomisation`}
+                  className="row-switch"
+                  disabled={alphabet.length <= 2 && alphabet.includes(letter)}
+                  onClick={() => onToggle(letter.toLowerCase())}
+                  role="switch"
+                  type="button"
+                >
+                  <span />
+                </button>
+                <span className="fragment-row-label">{letter}</span>
+              </div>
               {Array.from({ length: 12 }, (_, index) => {
                 const id = `${letter.toLowerCase()}${String(index + 1).padStart(2, "0")}`;
 
@@ -74,11 +94,6 @@ export default function AvailableGrid({
               })}
             </div>
           ))}
-          {onlySelected && alphabet.length === 0 && (
-            <p className="empty-grid">
-              Select a minuetto above to see its fragments.
-            </p>
-          )}
         </div>
       </div>
     </div>

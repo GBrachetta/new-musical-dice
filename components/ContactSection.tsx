@@ -14,7 +14,7 @@ export default function ContactSection() {
         onClick={() => setOpen(true)}
         type="button"
       >
-        CONTACT
+        Contact
       </button>
 
       <ContactModal

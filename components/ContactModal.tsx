@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
 
 type ContactModalProps = {
@@ -9,17 +9,40 @@ type ContactModalProps = {
 };
 
 export default function ContactModal({ onClose, open }: ContactModalProps) {
-  const [closing, setClosing] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
+  const fieldId = useId();
   const [sending, setSending] = useState(false);
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+
+  useEffect(() => {
+    const modal = dialog.current;
+
+    if (!open) {
+      modal?.close();
+
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+
+    modal?.showModal();
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      modal?.close();
+    };
+  }, [open]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    setSending(true);
-    setMessage("");
+    if (sending) return;
 
     const form = event.currentTarget;
+
+    setSending(true);
+    setStatus("idle");
 
     try {
       await emailjs.sendForm(
@@ -28,150 +51,116 @@ export default function ContactModal({ onClose, open }: ContactModalProps) {
         form,
         "user_bXMwDjNNrfAYxbs0D1MYH",
       );
-
       form.reset();
-      setMessage("Your email was successfully sent");
-
-      setTimeout(() => {
-        setMessage("");
-        handleClose();
-      }, 2000);
-    } catch (error) {
-      alert("Send email failed!\r\n Response:\n " + JSON.stringify(error));
+      setStatus("success");
+    } catch {
+      setStatus("error");
     } finally {
       setSending(false);
     }
   };
 
-  if (!open && !closing) {
-    return null;
-  }
-
-  const handleClose = () => {
-    setClosing(true);
-
-    setTimeout(() => {
-      setClosing(false);
-      onClose();
-    }, 500);
-  };
-
   return (
-    <>
-      <div
-        className={`modal fade show d-block ${closing ? "modal-closing" : ""}`}
-        id="formModal"
-        onMouseDown={(event) => {
-          if (event.target === event.currentTarget) {
-            handleClose();
-          }
-        }}
-        role="dialog"
-        tabIndex={-1}
-      >
-        <div
-          className="modal-dialog"
-          role="document"
+    <dialog
+      aria-labelledby={titleId}
+      className="about-dialog contact-dialog"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      onClose={onClose}
+      ref={dialog}
+    >
+      <div className="contact-dialog-content">
+        <button
+          aria-label="Close contact form"
+          className="about-dialog-close"
+          onClick={onClose}
+          type="button"
         >
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Contact</h5>
-
-              <button
-                aria-label="Close"
-                className="close"
-                onClick={handleClose}
-                type="button"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-
-            <div className="row">
-              <div className="col-12 container">
-                <form
-                  id="form-contact"
-                  onSubmit={handleSubmit}
-                >
-                  <h5 className="my-4">
-                    Please fill in the form to get in touch.
-                  </h5>
-
-                  <fieldset>
-                    <div className="row justify-content-between">
-                      <div className="col-12 form-group">
-                        <label htmlFor="inputName">Name</label>
-                        <input
-                          className="form-control"
-                          id="inputName"
-                          name="from_name"
-                          placeholder="Enter Name"
-                          required
-                          type="text"
-                        />
-                      </div>
-
-                      <div className="col-12">
-                        <label htmlFor="inputEmail">Email address</label>
-                        <input
-                          aria-describedby="emailHelp"
-                          className="form-control"
-                          id="inputEmail"
-                          name="from_email"
-                          placeholder="Enter email"
-                          required
-                          type="email"
-                        />
-                        <small
-                          className="form-text text-muted"
-                          id="emailHelp"
-                        >
-                          I&apos;ll never share your email with anyone else.
-                        </small>
-                      </div>
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="textArea">Leave your message here</label>
-                      <textarea
-                        className="form-control"
-                        id="textArea"
-                        name="info_request"
-                        required
-                        rows={5}
-                      />
-                    </div>
-
-                    <div className="row my-5 text-center">
-                      <div className="col-12">
-                        <button
-                          className="btn btn-primary btn-block"
-                          disabled={sending}
-                          type="submit"
-                        >
-                          {sending ? "Sending..." : "Submit"}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div
-                      className={message ? "message-style" : ""}
-                      id="messages"
-                    >
-                      {message}
-                    </div>
-                  </fieldset>
-                </form>
-              </div>
-            </div>
+          <i
+            aria-hidden="true"
+            className="fa-solid fa-xmark"
+          />
+        </button>
+        <div className="contact-introduction">
+          <p className="contact-kicker">Guillermo Brachetta</p>
+          <h2 id={titleId}>Get in touch</h2>
+          <div className="about-divider" />
+          <p>
+            Have a question about the music or the game? I&apos;d be happy to
+            hear from you.
+          </p>
+          <div className="contact-direct">
+            <span>Prefer email?</span>
+            <a href="mailto:brachetta@me.com">brachetta@me.com</a>
           </div>
         </div>
+        <form
+          aria-busy={sending}
+          className="contact-form"
+          onSubmit={handleSubmit}
+        >
+          <fieldset disabled={sending}>
+            <div className="contact-field">
+              <label htmlFor={`${fieldId}-name`}>Your name</label>
+              <input
+                autoComplete="name"
+                id={`${fieldId}-name`}
+                name="from_name"
+                placeholder="Name"
+                required
+                type="text"
+              />
+            </div>
+            <div className="contact-field">
+              <label htmlFor={`${fieldId}-email`}>Email address</label>
+              <input
+                autoComplete="email"
+                id={`${fieldId}-email`}
+                name="from_email"
+                placeholder="you@example.com"
+                required
+                type="email"
+              />
+            </div>
+            <div className="contact-field">
+              <label htmlFor={`${fieldId}-message`}>Your message</label>
+              <textarea
+                id={`${fieldId}-message`}
+                name="info_request"
+                placeholder="What would you like to ask or share?"
+                required
+                rows={4}
+              />
+            </div>
+            <button
+              className="workbench-button workbench-primary contact-submit"
+              disabled={sending}
+              type="submit"
+            >
+              <i
+                aria-hidden="true"
+                className={`fa-solid ${sending ? "fa-spinner fa-spin" : "fa-paper-plane"}`}
+              />
+              {sending ? "Sending…" : "Send message"}
+            </button>
+          </fieldset>
+          <div
+            aria-live="polite"
+            className={`contact-feedback ${status}`}
+          >
+            {status === "success" && (
+              <p>Thank you. Your message has been sent.</p>
+            )}
+            {status === "error" && (
+              <p>
+                Your message could not be sent. Please try again or email me
+                directly.
+              </p>
+            )}
+          </div>
+        </form>
       </div>
-
-      <div
-        className={`modal-backdrop fade show ${closing ? "modal-backdrop-closing" : ""
-          }`}
-      />
-    </>
+    </dialog>
   );
 }

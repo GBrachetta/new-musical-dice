@@ -35,7 +35,9 @@ export default function MinuettoList({
             aria-hidden="true"
             className="minuetto-icon"
           >
-            {playingMinuetto === minuetto.name ? "■" : "▷"}
+            <i
+              className={`fa-solid ${playingMinuetto === minuetto.name ? "fa-stop" : "fa-play"}`}
+            />
           </span>
         </button>
       ))}

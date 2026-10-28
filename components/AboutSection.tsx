@@ -14,7 +14,7 @@ export default function AboutSection() {
         onClick={() => setOpen(true)}
         type="button"
       >
-        ABOUT ME
+        About me
       </button>
 
       <AboutModal

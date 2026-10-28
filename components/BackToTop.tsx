@@ -10,7 +10,8 @@ export default function BackToTop() {
       setVisible(window.scrollY > 500);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -19,15 +20,16 @@ export default function BackToTop() {
 
   return (
     <a
+      aria-hidden={!visible}
       aria-label="Go back to top"
       className={`scrolling-link floating-btn ${visible ? "active" : ""}`}
       href="#title"
       id="btn-to-top"
-      title="Go to top"
+      tabIndex={visible ? 0 : -1}
     >
       <i
         aria-hidden="true"
-        className="fas fa-arrow-circle-up fa-3x"
+        className="fa-solid fa-arrow-up"
       />
     </a>
   );

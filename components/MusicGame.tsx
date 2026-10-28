@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import { Howl } from "howler";
 
 import AvailableGrid from "@/components/AvailableGrid";
-import MinuettoSelector from "@/components/MinuettoSelector";
 
 import MinuettoList, { type Minuetto } from "./MinuettoList";
 
@@ -34,6 +33,15 @@ export default function MusicGame() {
   const [randomIDs, setRandomIDs] = useState<string[]>([]);
   const [isPlayingSequence, setIsPlayingSequence] = useState(false);
   const [hasPlayedSequence, setHasPlayedSequence] = useState(false);
+  const orderedLetters = alphabet
+    .map((letter) => letter.toLowerCase())
+    .filter((letter) => selectedLetters.includes(letter));
+  const combinationNumber =
+    randomIDs.reduce(
+      (number, id) =>
+        number * orderedLetters.length + orderedLetters.indexOf(id[0]),
+      0,
+    ) + 1;
 
   const randomiseSelection = (letters: string[]) => {
     stopAllAudio();
@@ -103,6 +111,10 @@ export default function MusicGame() {
   const randomise = () => randomiseSelection(selectedLetters);
 
   const handleToggleMinuetto = (letter: string) => {
+    if (selectedLetters.length <= 2 && selectedLetters.includes(letter)) {
+      return;
+    }
+
     const newSelection = selectedLetters.includes(letter)
       ? selectedLetters.filter((item) => item !== letter)
       : [...selectedLetters, letter];
@@ -194,7 +206,6 @@ export default function MusicGame() {
         <div>
           <h2>The original minuetti</h2>
         </div>
-        <p>Listen to a piece, then choose which to include below.</p>
       </div>
 
       <MinuettoList
@@ -203,29 +214,26 @@ export default function MusicGame() {
         playingMinuetto={playingMinuetto}
       />
 
-      <MinuettoSelector
-        alphabet={alphabet}
-        onToggle={handleToggleMinuetto}
-        selectedLetters={selectedLetters}
-      />
-
       <div className="composition-heading section-heading">
         <div>
           <h2>Your minuetto</h2>
         </div>
-        <p>One fragment from each column. Two measures per fragment.</p>
       </div>
       <div className="transport">
         <button
-          className="workbench-button workbench-primary"
+          className="workbench-button"
           disabled={selectedLetters.length < 2}
           id="btn-randomise"
           onClick={randomise}
         >
+          <i
+            aria-hidden="true"
+            className="fa-solid fa-shuffle"
+          />
           Randomise
         </button>{" "}
         <button
-          className="workbench-button"
+          className="workbench-button workbench-primary"
           disabled={randomIDs.length !== 12}
           id="btn-play"
           onClick={() => {
@@ -236,29 +244,37 @@ export default function MusicGame() {
             }
           }}
         >
+          <i
+            aria-hidden="true"
+            className={`fa-solid ${isPlayingSequence ? "fa-stop" : "fa-play"}`}
+          />
           {isPlayingSequence
             ? "Stop Minuetto"
             : hasPlayedSequence
               ? "Play again"
               : "Play Minuetto"}
-        </button>{" "}
-        <span
+        </button>
+        <div
           aria-live="polite"
-          className="playback-status"
+          className="combination-count"
         >
-          {playingBar
-            ? `Playing ${playingBar.toUpperCase()}`
-            : isPlayingSequence
-              ? "Playing minuetto"
-              : randomIDs.length > 0
-                ? "Ready to play"
-                : "Randomise to create your first minuetto"}
-        </span>
+          <strong>
+            {randomIDs.length === 12
+              ? `Combination ${combinationNumber.toLocaleString("en-GB")}`
+              : `${(selectedLetters.length ** 12).toLocaleString("en-GB")}`}
+          </strong>
+          <span>
+            {randomIDs.length === 12
+              ? `out of ${(selectedLetters.length ** 12).toLocaleString("en-GB")} possible combinations`
+              : "possible combinations"}
+          </span>
+        </div>
       </div>
       <AvailableGrid
         alphabet={selectedLetters.map((letter) => letter.toUpperCase())}
         isPlayingSequence={isPlayingSequence}
         onBarClick={handleBarClick}
+        onToggle={handleToggleMinuetto}
         playingBar={playingBar}
         randomIDs={randomIDs}
       />
@@ -270,7 +286,6 @@ export default function MusicGame() {
         <span>
           <i className="playing-key" /> Currently playing
         </span>
-        <span>Click a cell to listen to its fragment.</span>
       </div>
     </div>
   );
