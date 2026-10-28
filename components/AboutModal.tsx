@@ -67,9 +67,7 @@ export default function AboutModal({ onClose, open }: AboutModalProps) {
         <div className="about-biography">
           <p className="about-kicker">About me</p>
           <h2 id={titleId}>
-            Guillermo{" "}
-            <br />
-            Brachetta
+            <span>Guillermo</span> <span>Brachetta</span>
           </h2>
           <div className="about-divider" />
           <p>

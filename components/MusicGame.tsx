@@ -1,9 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 import { Howl } from "howler";
 
+import AnimatedDisclosure from "@/components/AnimatedDisclosure";
 import AvailableGrid from "@/components/AvailableGrid";
+import {
+  combinationNumber as getCombinationNumber,
+  orderSelection,
+  restoreCombination,
+} from "@/lib/combinations";
+import { SequencePlayer } from "@/lib/sequence-player";
 
 import MinuettoList, { type Minuetto } from "./MinuettoList";
 
@@ -19,13 +26,13 @@ function getRandomItem<T>(items: T[]): T {
 }
 
 export default function MusicGame() {
-  const currentMinuetto = useRef<Howl | null>(null);
+  const currentPreview = useRef<Howl | null>(null);
   const currentMinuettoName = useRef<string | null>(null);
-  const currentBar = useRef<Howl | null>(null);
-  const sequenceSounds = useRef<Howl[]>([]);
+  const sequencePlayer = useRef<SequencePlayer | null>(null);
   const sequenceRun = useRef(0);
 
   const [playingMinuetto, setPlayingMinuetto] = useState<string | null>(null);
+  const [loadingMinuetto, setLoadingMinuetto] = useState<string | null>(null);
   const [selectedLetters, setSelectedLetters] = useState<string[]>(
     alphabet.map((letter) => letter.toLowerCase()),
   );
@@ -33,15 +40,58 @@ export default function MusicGame() {
   const [randomIDs, setRandomIDs] = useState<string[]>([]);
   const [isPlayingSequence, setIsPlayingSequence] = useState(false);
   const [hasPlayedSequence, setHasPlayedSequence] = useState(false);
-  const orderedLetters = alphabet
-    .map((letter) => letter.toLowerCase())
-    .filter((letter) => selectedLetters.includes(letter));
-  const combinationNumber =
-    randomIDs.reduce(
-      (number, id) =>
-        number * orderedLetters.length + orderedLetters.indexOf(id[0]),
-      0,
-    ) + 1;
+  const [isLoading, setIsLoading] = useState(false);
+  const [audioError, setAudioError] = useState("");
+  const [restored, setRestored] = useState(false);
+  const [restoreNumber, setRestoreNumber] = useState("");
+  const [restoreError, setRestoreError] = useState("");
+
+  useEffect(() => {
+    const parameters = new URLSearchParams(globalThis.location.search);
+    const selection = orderSelection([...(parameters.get("minuetti") ?? "")]);
+    const ids = restoreCombination(
+      selection,
+      Number(parameters.get("combination")),
+    );
+
+    startTransition(() => {
+      if (ids) {
+        setSelectedLetters(selection);
+        setRandomIDs(ids);
+      }
+
+      setRestored(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!restored || randomIDs.length !== 12) return;
+    const url = new URL(globalThis.location.href);
+
+    url.searchParams.set("minuetti", orderSelection(selectedLetters).join(""));
+    url.searchParams.set(
+      "combination",
+      String(getCombinationNumber(selectedLetters, randomIDs)),
+    );
+    globalThis.history.replaceState(globalThis.history.state, "", url);
+  }, [restored, selectedLetters, randomIDs]);
+
+  useEffect(
+    () => () => {
+      sequenceRun.current += 1;
+      currentPreview.current?.unload();
+      sequencePlayer.current?.dispose();
+      sequencePlayer.current = null;
+    },
+    [],
+  );
+
+  const getSequencePlayer = () => {
+    sequencePlayer.current ??= new SequencePlayer();
+
+    return sequencePlayer.current;
+  };
+  const combinationNumber = getCombinationNumber(selectedLetters, randomIDs);
 
   const randomiseSelection = (letters: string[]) => {
     stopAllAudio();
@@ -61,54 +111,71 @@ export default function MusicGame() {
   };
 
   const stopAllAudio = () => {
-    currentMinuetto.current?.stop();
-    currentBar.current?.stop();
-
-    for (const sound of sequenceSounds.current) sound.stop();
-
     sequenceRun.current += 1;
+    currentPreview.current?.unload();
+    sequencePlayer.current?.stop();
 
-    currentMinuetto.current = null;
+    currentPreview.current = null;
     currentMinuettoName.current = null;
-    currentBar.current = null;
 
     setPlayingMinuetto(null);
+    setLoadingMinuetto(null);
     setPlayingBar(null);
+    setIsLoading(false);
+    setAudioError("");
     setIsPlayingSequence(false);
     setHasPlayedSequence(false);
+  };
+
+  const startPreview = (path: string, kind: string, onPlay: () => void) => {
+    const run = sequenceRun.current;
+    const fail = () => {
+      if (run !== sequenceRun.current) return;
+      stopAllAudio();
+      setAudioError(`This ${kind} could not play. Please try again.`);
+    };
+
+    try {
+      const sound = new Howl({
+        onend: () => {
+          if (run === sequenceRun.current) stopAllAudio();
+        },
+        onloaderror: fail,
+        onplay: () => {
+          if (run === sequenceRun.current) onPlay();
+        },
+        onplayerror: fail,
+        preload: false,
+        src: [path],
+      });
+
+      currentPreview.current = sound;
+      sound.load();
+      sound.play();
+    } catch {
+      fail();
+    }
   };
 
   const handleMinuettoClick = (minuetto: Minuetto) => {
     const isSameMinuetto = currentMinuettoName.current === minuetto.name;
 
-    if (isSameMinuetto) {
-      currentMinuetto.current?.stop();
-      currentMinuetto.current = null;
-      currentMinuettoName.current = null;
-      setPlayingMinuetto(null);
-
-      return;
-    }
-
     stopAllAudio();
+    if (isSameMinuetto) return;
 
-    const sound = new Howl({
-      onend: () => {
-        currentMinuetto.current = null;
-        currentMinuettoName.current = null;
-        setPlayingMinuetto(null);
-      },
-      src: [minuetto.path],
-    });
-
-    currentMinuetto.current = sound;
     currentMinuettoName.current = minuetto.name;
-    setPlayingMinuetto(minuetto.name);
-
-    sound.play();
+    setLoadingMinuetto(minuetto.name);
+    startPreview(minuetto.path, "minuetto", () => {
+      setLoadingMinuetto(null);
+      setPlayingMinuetto(minuetto.name);
+    });
   };
 
-  const randomise = () => randomiseSelection(selectedLetters);
+  const randomise = () => {
+    setRestoreNumber("");
+    setRestoreError("");
+    randomiseSelection(selectedLetters);
+  };
 
   const handleToggleMinuetto = (letter: string) => {
     if (selectedLetters.length <= 2 && selectedLetters.includes(letter)) {
@@ -125,79 +192,55 @@ export default function MusicGame() {
 
   const handleBarClick = (id: string) => {
     stopAllAudio();
-
-    const sound = new Howl({
-      onend: () => {
-        currentBar.current = null;
-        setPlayingBar(null);
-      },
-      src: [`/assets/music/cells/${id}.mp3`],
-    });
-
-    currentBar.current = sound;
-    setPlayingBar(id);
-    sound.play();
+    startPreview(`/assets/music/cells/${id}.mp3`, "fragment", () =>
+      setPlayingBar(id),
+    );
   };
 
   const createSequence = (ids: string[]) => {
-    for (const sound of sequenceSounds.current) sound.unload();
-
-    const sounds = ids.map(
-      (id) =>
-        new Howl({
-          src: [`/assets/music/randomiser/${id}.mp3`],
-        }),
-    );
-
-    sequenceSounds.current = sounds;
-  };
-
-  const playSequence = () => {
-    if (randomIDs.length !== 12) {
-      return;
-    }
-
-    const sounds = sequenceSounds.current;
-
-    stopAllAudio();
-
     const run = sequenceRun.current;
 
-    let currentIndex = 0;
-
-    const playNext = () => {
-      if (run !== sequenceRun.current) {
-        return;
-      }
-
-      if (currentIndex >= sounds.length) {
-        setIsPlayingSequence(false);
-        setPlayingBar(null);
-        setHasPlayedSequence(true);
-
-        return;
-      }
-
-      const id = randomIDs[currentIndex];
-      const sound = sounds[currentIndex];
-
-      setPlayingBar(id);
-
-      sound.once("end", () => {
-        if (run !== sequenceRun.current) {
-          return;
-        }
-
-        currentIndex++;
-        playNext();
+    void getSequencePlayer()
+      .preload(ids.map((id) => `/assets/music/randomiser/${id}.mp3`))
+      .catch(() => {
+        if (run === sequenceRun.current)
+          setAudioError("Some fragments could not load. Press Play to retry.");
       });
+  };
 
-      sound.play();
-    };
+  const playSequence = async () => {
+    if (randomIDs.length !== 12) return;
+
+    stopAllAudio();
+    const run = sequenceRun.current;
 
     setIsPlayingSequence(true);
-    setHasPlayedSequence(false);
-    playNext();
+    setIsLoading(true);
+
+    try {
+      await getSequencePlayer().play(
+        randomIDs.map((id) => `/assets/music/randomiser/${id}.mp3`),
+        {
+          onEnd: () => {
+            if (run !== sequenceRun.current) return;
+            setIsPlayingSequence(false);
+            setIsLoading(false);
+            setPlayingBar(null);
+            setHasPlayedSequence(true);
+          },
+          onFragment: (index) => {
+            if (run === sequenceRun.current) setPlayingBar(randomIDs[index]);
+          },
+          onStart: () => {
+            if (run === sequenceRun.current) setIsLoading(false);
+          },
+        },
+      );
+    } catch {
+      if (run !== sequenceRun.current) return;
+      stopAllAudio();
+      setAudioError("The music could not be played. Please try again.");
+    }
   };
 
   return (
@@ -209,6 +252,7 @@ export default function MusicGame() {
       </div>
 
       <MinuettoList
+        loadingMinuetto={loadingMinuetto}
         minuetti={minuetti}
         onMinuettoClick={handleMinuettoClick}
         playingMinuetto={playingMinuetto}
@@ -240,7 +284,7 @@ export default function MusicGame() {
             if (isPlayingSequence) {
               stopAllAudio();
             } else {
-              playSequence();
+              void playSequence();
             }
           }}
         >
@@ -248,11 +292,13 @@ export default function MusicGame() {
             aria-hidden="true"
             className={`fa-solid ${isPlayingSequence ? "fa-stop" : "fa-play"}`}
           />
-          {isPlayingSequence
-            ? "Stop Minuetto"
-            : hasPlayedSequence
-              ? "Play again"
-              : "Play Minuetto"}
+          {isLoading
+            ? "Cancel loading"
+            : isPlayingSequence
+              ? "Stop Minuetto"
+              : hasPlayedSequence
+                ? "Play again"
+                : "Play Minuetto"}
         </button>
         <div
           aria-live="polite"
@@ -269,6 +315,73 @@ export default function MusicGame() {
               : "possible combinations"}
           </span>
         </div>
+      </div>
+      {audioError && (
+        <p
+          className="audio-error"
+          role="alert"
+        >
+          {audioError}
+        </p>
+      )}
+      <div className="combination-restore">
+        <AnimatedDisclosure title="Restore a combination">
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const ids = restoreCombination(
+                selectedLetters,
+                Number(restoreNumber.replaceAll(/[,\s]/g, "")),
+              );
+
+              if (!ids) {
+                setRestoreError(
+                  `Enter a whole number from 1 to ${(selectedLetters.length ** 12).toLocaleString("en-GB")}.`,
+                );
+
+                return;
+              }
+
+              stopAllAudio();
+              setRandomIDs(ids);
+              setRestoreError("");
+              createSequence(ids);
+            }}
+          >
+            <label htmlFor="restore-combination-number">
+              Combination number
+            </label>
+            <div className="restore-controls">
+              <input
+                id="restore-combination-number"
+                inputMode="numeric"
+                onChange={(event) => setRestoreNumber(event.target.value)}
+                placeholder="Enter a combination number"
+                required
+                type="text"
+                value={restoreNumber}
+              />
+              <button
+                className="workbench-button"
+                type="submit"
+              >
+                Restore
+              </button>
+            </div>
+            <p>
+              Uses the currently included minuetti. Reloading preserves your
+              current combination; copy the page address to save it.
+            </p>
+            {restoreError && (
+              <p
+                className="audio-error"
+                role="alert"
+              >
+                {restoreError}
+              </p>
+            )}
+          </form>
+        </AnimatedDisclosure>
       </div>
       <AvailableGrid
         alphabet={selectedLetters.map((letter) => letter.toUpperCase())}

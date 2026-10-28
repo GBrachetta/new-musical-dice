@@ -5,11 +5,13 @@ export type Minuetto = {
 
 type MinuettoListProps = {
   minuetti: Minuetto[];
+  loadingMinuetto: string | null;
   playingMinuetto: string | null;
   onMinuettoClick: (minuetto: Minuetto) => void;
 };
 
 export default function MinuettoList({
+  loadingMinuetto,
   minuetti,
   onMinuettoClick,
   playingMinuetto,
@@ -18,10 +20,13 @@ export default function MinuettoList({
     <div className="minuetto-library">
       {minuetti.map((minuetto) => (
         <button
+          aria-busy={loadingMinuetto === minuetto.name}
           aria-label={
-            playingMinuetto === minuetto.name
-              ? `Stop ${minuetto.name}`
-              : `Listen to ${minuetto.name}`
+            loadingMinuetto === minuetto.name
+              ? `Cancel loading ${minuetto.name}`
+              : playingMinuetto === minuetto.name
+                ? `Stop ${minuetto.name}`
+                : `Listen to ${minuetto.name}`
           }
           aria-pressed={playingMinuetto === minuetto.name}
           className={`minuetto-card ${playingMinuetto === minuetto.name ? "minuetto-playing" : ""}`}
@@ -36,7 +41,7 @@ export default function MinuettoList({
             className="minuetto-icon"
           >
             <i
-              className={`fa-solid ${playingMinuetto === minuetto.name ? "fa-stop" : "fa-play"}`}
+              className={`fa-solid ${loadingMinuetto === minuetto.name ? "fa-spinner fa-spin" : playingMinuetto === minuetto.name ? "fa-stop" : "fa-play"}`}
             />
           </span>
         </button>
