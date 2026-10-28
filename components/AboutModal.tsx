@@ -3,6 +3,8 @@
 import { useEffect, useId, useRef } from "react";
 import Image from "next/image";
 
+import avatar from "@/public/assets/images/avatar.png";
+
 type AboutModalProps = {
   open: boolean;
   onClose: () => void;
@@ -57,10 +59,8 @@ export default function AboutModal({ onClose, open }: AboutModalProps) {
         <div className="about-portrait">
           <Image
             alt="Guillermo Brachetta"
-            height={500}
             sizes="(max-width: 650px) 80vw, 320px"
-            src="/assets/images/avatar.png"
-            width={500}
+            src={avatar}
           />
           <span>Musician &amp; developer</span>
         </div>
