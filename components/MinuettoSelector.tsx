@@ -10,29 +10,21 @@ export default function MinuettoSelector({
   selectedLetters,
 }: MinuettoSelectorProps) {
   return (
-    <div
-      className="row checkbox-tags justify-content-center form-group mb-md-5 mx-0 mb-4 px-0 pb-0"
-      id="checkboxes-minuetti"
-    >
-      {alphabet.map((letter, index) => {
-        const value = letter.toLowerCase();
-
-        return (
-          <div
-            className="col-3 col-md-2 col-lg-1"
-            key={letter}
-          >
+    <fieldset className="source-selector">
+      <legend>Include in randomisation</legend>
+      <div className="source-options">
+        {alphabet.map((letter) => (
+          <label key={letter}>
             <input
-              checked={selectedLetters.includes(value)}
-              id={`checkbox-${index + 1}`}
-              onChange={() => onToggle(value)}
+              checked={selectedLetters.includes(letter.toLowerCase())}
+              onChange={() => onToggle(letter.toLowerCase())}
               type="checkbox"
-              value={value}
+              value={letter.toLowerCase()}
             />
-            <label htmlFor={`checkbox-${index + 1}`}>{letter}</label>
-          </div>
-        );
-      })}
-    </div>
+            <span>{letter}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
   );
 }

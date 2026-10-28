@@ -15,18 +15,28 @@ export default function MinuettoList({
   playingMinuetto,
 }: MinuettoListProps) {
   return (
-    <div className="row mx-0 mb-3 py-3 text-center">
+    <div className="minuetto-library">
       {minuetti.map((minuetto) => (
         <button
-          className={`btn col-6 col-md-3 individual-minuetto btn-primary btn-lg ${playingMinuetto === minuetto.name ? "minuetto-playing" : ""
-            }`}
+          aria-label={
+            playingMinuetto === minuetto.name
+              ? `Stop ${minuetto.name}`
+              : `Listen to ${minuetto.name}`
+          }
+          aria-pressed={playingMinuetto === minuetto.name}
+          className={`minuetto-card ${playingMinuetto === minuetto.name ? "minuetto-playing" : ""}`}
           key={minuetto.name}
-          onClick={(event) => {
-            event.currentTarget.blur();
-            onMinuettoClick(minuetto);
-          }}
+          onClick={() => onMinuettoClick(minuetto)}
+          type="button"
         >
-          {minuetto.name}
+          <span className="minuetto-letter">{minuetto.name.slice(-1)}</span>
+          <span className="minuetto-caption">Minuetto</span>
+          <span
+            aria-hidden="true"
+            className="minuetto-icon"
+          >
+            {playingMinuetto === minuetto.name ? "■" : "▷"}
+          </span>
         </button>
       ))}
     </div>

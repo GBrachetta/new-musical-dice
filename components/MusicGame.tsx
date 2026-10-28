@@ -35,14 +35,14 @@ export default function MusicGame() {
   const [isPlayingSequence, setIsPlayingSequence] = useState(false);
   const [hasPlayedSequence, setHasPlayedSequence] = useState(false);
 
-  const randomise = () => {
+  const randomiseSelection = (letters: string[]) => {
     stopAllAudio();
     setHasPlayedSequence(false);
 
     const newRandomIDs: string[] = [];
 
-    for (let index = 1; index <= 12; index++) {
-      const letter = getRandomItem(selectedLetters);
+    for (let index = 1; letters.length > 0 && index <= 12; index++) {
+      const letter = getRandomItem(letters);
       const number = index < 10 ? `0${index}` : `${index}`;
 
       newRandomIDs.push(`${letter}${number}`);
@@ -100,32 +100,15 @@ export default function MusicGame() {
     sound.play();
   };
 
+  const randomise = () => randomiseSelection(selectedLetters);
+
   const handleToggleMinuetto = (letter: string) => {
-    stopAllAudio();
-    setHasPlayedSequence(false);
+    const newSelection = selectedLetters.includes(letter)
+      ? selectedLetters.filter((item) => item !== letter)
+      : [...selectedLetters, letter];
 
-    setSelectedLetters((current) => {
-      const newSelection = current.includes(letter)
-        ? current.filter((item) => item !== letter)
-        : [...current, letter];
-
-      if (newSelection.length > 0) {
-        const newRandomIDs: string[] = [];
-
-        for (let index = 1; index <= 12; index++) {
-          const selectedLetter = getRandomItem(newSelection);
-          const number = index < 10 ? `0${index}` : `${index}`;
-
-          newRandomIDs.push(`${selectedLetter}${number}`);
-        }
-
-        setRandomIDs(newRandomIDs);
-      } else {
-        setRandomIDs([]);
-      }
-
-      return newSelection;
-    });
+    setSelectedLetters(newSelection);
+    randomiseSelection(newSelection);
   };
 
   const handleBarClick = (id: string) => {
@@ -206,10 +189,13 @@ export default function MusicGame() {
   };
 
   return (
-    <div className="container">
-      <p className="lead text-center">
-        <em>Click on the buttons to listen to the 12 original minuetti</em>
-      </p>
+    <div className="music-workbench container">
+      <div className="section-heading">
+        <div>
+          <h2>The original minuetti</h2>
+        </div>
+        <p>Listen to a piece, then choose which to include below.</p>
+      </div>
 
       <MinuettoList
         minuetti={minuetti}
@@ -217,32 +203,58 @@ export default function MusicGame() {
         playingMinuetto={playingMinuetto}
       />
 
-      <p className="lead mb-3 text-center">
-        <em>
-          Select below which of the above pieces you would like to include or
-          exclude to randomise from (grid will be repopulated accordingly).
-        </em>
-      </p>
-
       <MinuettoSelector
         alphabet={alphabet}
         onToggle={handleToggleMinuetto}
         selectedLetters={selectedLetters}
       />
 
-      <div className="row my-md-5 mb-4 mt-3 pt-3 text-center">
-        <div className="col-12">
-          <button
-            className="main-action-buttons btn btn-primary btn-lg mb-1"
-            disabled={selectedLetters.length < 2}
-            id="btn-randomise"
-            onClick={randomise}
-          >
-            Randomise!
-          </button>
+      <div className="composition-heading section-heading">
+        <div>
+          <h2>Your minuetto</h2>
         </div>
+        <p>One fragment from each column. Two measures per fragment.</p>
       </div>
-
+      <div className="transport">
+        <button
+          className="workbench-button workbench-primary"
+          disabled={selectedLetters.length < 2}
+          id="btn-randomise"
+          onClick={randomise}
+        >
+          Randomise
+        </button>{" "}
+        <button
+          className="workbench-button"
+          disabled={randomIDs.length !== 12}
+          id="btn-play"
+          onClick={() => {
+            if (isPlayingSequence) {
+              stopAllAudio();
+            } else {
+              playSequence();
+            }
+          }}
+        >
+          {isPlayingSequence
+            ? "Stop Minuetto"
+            : hasPlayedSequence
+              ? "Play again"
+              : "Play Minuetto"}
+        </button>{" "}
+        <span
+          aria-live="polite"
+          className="playback-status"
+        >
+          {playingBar
+            ? `Playing ${playingBar.toUpperCase()}`
+            : isPlayingSequence
+              ? "Playing minuetto"
+              : randomIDs.length > 0
+                ? "Ready to play"
+                : "Randomise to create your first minuetto"}
+        </span>
+      </div>
       <AvailableGrid
         alphabet={selectedLetters.map((letter) => letter.toUpperCase())}
         isPlayingSequence={isPlayingSequence}
@@ -251,27 +263,14 @@ export default function MusicGame() {
         randomIDs={randomIDs}
       />
 
-      <div className="row my-md-5 mb-4 mt-3 pt-3 text-center">
-        <div className="col-12">
-          <button
-            className="main-action-buttons btn btn-primary btn-lg mb-1"
-            disabled={randomIDs.length !== 12}
-            id="btn-play"
-            onClick={() => {
-              if (isPlayingSequence) {
-                stopAllAudio();
-              } else {
-                playSequence();
-              }
-            }}
-          >
-            {isPlayingSequence
-              ? "Stop Minuetto"
-              : hasPlayedSequence
-                ? "Play Again!"
-                : "Play Minuetto"}
-          </button>
-        </div>
+      <div className="grid-legend">
+        <span>
+          <i className="chosen-key" /> Chosen fragment
+        </span>
+        <span>
+          <i className="playing-key" /> Currently playing
+        </span>
+        <span>Click a cell to listen to its fragment.</span>
       </div>
     </div>
   );
