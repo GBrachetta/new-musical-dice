@@ -2,6 +2,8 @@
 
 A musical dice game inspired by Mozart’s _Musikalisches Würfelspiel_, with **twelve original minuetti composed by Guillermo Brachetta**.
 
+[Play Musical Dice](https://new-musical-dice.vercel.app/)
+
 Choose which minuetti to include, generate a new combination, and listen as the grid follows the music. Each piece shares a harmonic structure, so its fragments can be combined with the corresponding fragments from the other pieces. You can explore the result without reading music or knowing how to compose.
 
 The music in this application is Guillermo’s own, rather than music by Mozart. The historical game commonly attributed to Mozart provides the inspiration; its authorship is uncertain.
