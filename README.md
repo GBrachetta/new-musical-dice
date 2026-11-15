@@ -57,6 +57,8 @@ The application uses `next/font` to load Montserrat from Google Fonts during the
 
 The contact form uses EmailJS. To run it under your own account, replace the service ID, template ID, and public key in [`components/ContactModal.tsx`](components/ContactModal.tsx).
 
+Manage the HTML email in the `dice_game` template in the EmailJS dashboard. Set Reply-To to `{{from_email}}` and keep the recipient set to your own inbox.
+
 The EmailJS template expects these form fields:
 
 | Field          | Value                  |

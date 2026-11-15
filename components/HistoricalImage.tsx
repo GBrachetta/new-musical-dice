@@ -9,6 +9,7 @@ const imageDescription =
 
 export default function HistoricalImage() {
   const [open, setOpen] = useState(false);
+  const [hasOpened, setHasOpened] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -31,18 +32,25 @@ export default function HistoricalImage() {
     };
   }, [open]);
 
+  const openImage = () => {
+    setHasOpened(true);
+    setOpen(true);
+  };
+
   return (
     <>
       <figure className="historical-figure">
         <button
           aria-haspopup="dialog"
           className="historical-image-link"
-          onClick={() => setOpen(true)}
+          onClick={openImage}
           type="button"
         >
           <Image
             alt={imageDescription}
+            fetchPriority="low"
             height={865}
+            loading="eager"
             sizes="(max-width: 800px) 100vw, 50vw"
             src={imageSource}
             width={1120}
@@ -53,7 +61,7 @@ export default function HistoricalImage() {
           <button
             aria-haspopup="dialog"
             className="image-enlarge-control"
-            onClick={() => setOpen(true)}
+            onClick={openImage}
             type="button"
           >
             View full-size image
@@ -84,15 +92,17 @@ export default function HistoricalImage() {
               />
             </button>
           </div>
-          <Image
-            alt={imageDescription}
-            height={865}
-            quality={100}
-            sizes="100vw"
-            src={imageSource}
-            unoptimized
-            width={1120}
-          />
+          {hasOpened && (
+            <Image
+              alt={imageDescription}
+              height={865}
+              loading="eager"
+              sizes="100vw"
+              src={imageSource}
+              unoptimized
+              width={1120}
+            />
+          )}
         </div>
       </dialog>
     </>

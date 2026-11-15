@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import emailjs from "@emailjs/browser";
 
 type ContactModalProps = {
   open: boolean;
@@ -45,12 +44,9 @@ export default function ContactModal({ onClose, open }: ContactModalProps) {
     setStatus("idle");
 
     try {
-      await emailjs.sendForm(
-        "gmail",
-        "dice_game",
-        form,
-        "user_bXMwDjNNrfAYxbs0D1MYH",
-      );
+      const { sendForm } = await import("@emailjs/browser");
+
+      await sendForm("gmail", "dice_game", form, "user_bXMwDjNNrfAYxbs0D1MYH");
       form.reset();
       setStatus("success");
     } catch {
@@ -100,7 +96,7 @@ export default function ContactModal({ onClose, open }: ContactModalProps) {
           className="contact-form"
           onSubmit={handleSubmit}
         >
-          <fieldset disabled={sending}>
+          <fieldset>
             <div className="contact-field">
               <label htmlFor={`${fieldId}-name`}>Your name</label>
               <input
@@ -108,6 +104,7 @@ export default function ContactModal({ onClose, open }: ContactModalProps) {
                 id={`${fieldId}-name`}
                 name="from_name"
                 placeholder="Name"
+                readOnly={sending}
                 required
                 type="text"
               />
@@ -119,6 +116,7 @@ export default function ContactModal({ onClose, open }: ContactModalProps) {
                 id={`${fieldId}-email`}
                 name="from_email"
                 placeholder="you@example.com"
+                readOnly={sending}
                 required
                 type="email"
               />
@@ -129,6 +127,7 @@ export default function ContactModal({ onClose, open }: ContactModalProps) {
                 id={`${fieldId}-message`}
                 name="info_request"
                 placeholder="What would you like to ask or share?"
+                readOnly={sending}
                 required
                 rows={4}
               />
