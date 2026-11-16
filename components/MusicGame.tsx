@@ -361,36 +361,52 @@ export default function MusicGame() {
         </div>
       </div>
       <div className="transport">
-        <button
-          className={`workbench-button ${randomIDs.length === 12 ? "" : "workbench-primary"}`}
-          disabled={selectedLetters.length < 2}
-          id="btn-randomise"
-          onClick={randomise}
-        >
-          <Icon name="shuffle" />
-          Randomise
-        </button>{" "}
-        <button
-          className={`workbench-button ${randomIDs.length === 12 ? "workbench-primary" : ""}`}
-          disabled={randomIDs.length !== 12}
-          id="btn-play"
-          onClick={() => {
-            if (isPlayingSequence) {
-              stopAllAudio();
-            } else {
-              void playSequence();
-            }
-          }}
-        >
-          <Icon name={isPlayingSequence ? "stop" : "play"} />
-          {isLoading
-            ? "Cancel loading"
-            : isPlayingSequence
-              ? "Stop Minuetto"
-              : hasPlayedSequence
-                ? "Play again"
-                : "Play Minuetto"}
-        </button>
+        <div className="transport-action">
+          <button
+            className={`workbench-button ${randomIDs.length === 12 ? "" : "workbench-primary"}`}
+            disabled={selectedLetters.length < 2}
+            id="btn-randomise"
+            onClick={randomise}
+          >
+            <Icon name="shuffle" />
+            Randomise
+          </button>
+          <kbd
+            aria-hidden="true"
+            className="shortcut-key"
+          >
+            R
+          </kbd>
+        </div>
+        <div className="transport-action">
+          <button
+            className={`workbench-button ${randomIDs.length === 12 ? "workbench-primary" : ""}`}
+            disabled={randomIDs.length !== 12}
+            id="btn-play"
+            onClick={() => {
+              if (isPlayingSequence) {
+                stopAllAudio();
+              } else {
+                void playSequence();
+              }
+            }}
+          >
+            <Icon name={isPlayingSequence ? "stop" : "play"} />
+            {isLoading
+              ? "Cancel loading"
+              : isPlayingSequence
+                ? "Stop Minuetto"
+                : hasPlayedSequence
+                  ? "Play again"
+                  : "Play Minuetto"}
+          </button>
+          <kbd
+            aria-hidden="true"
+            className="shortcut-key"
+          >
+            Space
+          </kbd>
+        </div>
         <div
           aria-live="polite"
           className="combination-count"

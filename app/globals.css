@@ -332,9 +332,43 @@ h3 {
 .transport {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   margin-bottom: 20px;
+}
+.transport-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.shortcut-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 6px;
+  border: 1px solid #d5d8cf;
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: #f7f5f0;
+  box-shadow: 0 1px 0 #c5c9be66;
+  color: #82897e;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  line-height: 1;
+  user-select: none;
+}
+.workbench-button:disabled + .shortcut-key {
+  opacity: 0.4;
+}
+@media (max-width: 800px), (pointer: coarse) {
+  .shortcut-key {
+    display: none;
+  }
 }
 .combination-count {
   display: flex;
