@@ -228,12 +228,6 @@ h3 {
   line-height: 1.8;
   margin-bottom: 14px;
 }
-@media (min-width: 1200px) {
-  .intro-description {
-    max-width: none;
-    white-space: nowrap;
-  }
-}
 .intro-link {
   font-size: 14px;
   font-weight: 700;

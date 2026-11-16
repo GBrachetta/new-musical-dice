@@ -290,7 +290,7 @@ export default function MusicGame() {
       </div>
       <div className="transport">
         <button
-          className="workbench-button"
+          className={`workbench-button ${randomIDs.length === 12 ? "" : "workbench-primary"}`}
           disabled={selectedLetters.length < 2}
           id="btn-randomise"
           onClick={randomise}
@@ -299,7 +299,7 @@ export default function MusicGame() {
           Randomise
         </button>{" "}
         <button
-          className="workbench-button workbench-primary"
+          className={`workbench-button ${randomIDs.length === 12 ? "workbench-primary" : ""}`}
           disabled={randomIDs.length !== 12}
           id="btn-play"
           onClick={() => {
