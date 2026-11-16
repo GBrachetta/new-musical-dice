@@ -7,6 +7,7 @@ type AvailableGridProps = {
   randomIDs: string[];
   playingBar: string | null;
   isPlayingSequence: boolean;
+  rollCount?: number;
   onBarClick: (id: string) => void;
   onToggle: (letter: string) => void;
 };
@@ -18,9 +19,16 @@ export default function AvailableGrid({
   onToggle,
   playingBar,
   randomIDs,
+  rollCount = 0,
 }: AvailableGridProps) {
   const [onlySelected, setOnlySelected] = useState(false);
   const rows = onlySelected ? alphabet : [..."ABCDEFGHIJKL"];
+  const cascadeClass =
+    rollCount > 0
+      ? rollCount % 2 === 0
+        ? "cascade-even"
+        : "cascade-odd"
+      : undefined;
 
   return (
     <div className="fragment-grid">
@@ -43,7 +51,10 @@ export default function AvailableGrid({
         role="region"
         tabIndex={0}
       >
-        <div id="available-grid">
+        <div
+          className={cascadeClass}
+          id="available-grid"
+        >
           <div className="fragment-sections">
             <span>Part A · 8 measures</span>
             <span>Part B · 16 measures</span>

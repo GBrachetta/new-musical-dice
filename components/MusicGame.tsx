@@ -47,6 +47,7 @@ export default function MusicGame() {
   const [restored, setRestored] = useState(false);
   const [restoreNumber, setRestoreNumber] = useState("");
   const [restoreError, setRestoreError] = useState("");
+  const [rollCount, setRollCount] = useState(0);
 
   useEffect(() => {
     const parameters = new URLSearchParams(globalThis.location.search);
@@ -109,6 +110,7 @@ export default function MusicGame() {
     }
 
     setRandomIDs(newRandomIDs);
+    setRollCount((count) => count + 1);
     createSequence(newRandomIDs);
   };
 
@@ -409,6 +411,7 @@ export default function MusicGame() {
         onToggle={handleToggleMinuetto}
         playingBar={playingBar}
         randomIDs={randomIDs}
+        rollCount={rollCount}
       />
 
       <div className="grid-legend">
