@@ -215,6 +215,12 @@ test("row switches preserve valid fragments and replace only excluded ones", () 
       assert.equal(updated, id);
     }
   }
+
+  const kept = game.grid().randomIDs.join(",");
+
+  game.grid().onIncludeAll();
+  assert.equal(game.grid().alphabet.join(""), "ABCDEFGHIJKL");
+  assert.equal(game.grid().randomIDs.join(","), kept);
 });
 
 test("a second click stops the same fragment while loading or playing", () => {
@@ -236,4 +242,33 @@ test("a second click stops the same fragment while loading or playing", () => {
     game.sounds[1].options.onplay();
     assert.equal(game.grid().playingBar, "a01");
   }
+});
+
+test("manual fragment selection enforces one fragment per column and requires twelve to play", () => {
+  const game = harness();
+  const playButton = () =>
+    game.find(game.render(), (node) => node.props?.id === "btn-play").props;
+
+  assert.equal(playButton().disabled, true);
+
+  // Selecting in the same column replaces the previous choice without repeating columns.
+  game.grid().onSelectFragment("c02");
+  game.grid().onSelectFragment("a01");
+  game.grid().onSelectFragment("f02");
+  assert.equal(game.grid().randomIDs.join(","), "a01,f02");
+  assert.equal(playButton().disabled, true);
+
+  // Clicking an already chosen fragment deselects that column.
+  game.grid().onSelectFragment("f02");
+  assert.equal(game.grid().randomIDs.join(","), "a01");
+
+  // Completing all 12 columns enables playback and orders by column.
+  for (let column = 12; column >= 2; column--) {
+    game.grid().onSelectFragment(`b${String(column).padStart(2, "0")}`);
+  }
+
+  assert.equal(game.grid().randomIDs.length, 12);
+  assert.equal(game.grid().randomIDs[0], "a01");
+  assert.equal(game.grid().randomIDs[11], "b12");
+  assert.equal(playButton().disabled, false);
 });

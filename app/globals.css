@@ -398,13 +398,35 @@ h3 {
 .workbench-button:disabled {
   opacity: 0.45;
 }
+.grid-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 28px;
+  margin: 0 0 15px;
+}
 .grid-filter {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 7px;
   font-size: 13px;
   color: var(--muted);
-  margin: 0 0 15px;
+  margin: 0;
+}
+.grid-include-all {
+  margin-left: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: inherit;
+  line-height: inherit;
+  font-weight: 600;
+}
+.grid-include-all:hover,
+.grid-include-all:focus-visible {
+  color: #217b66;
 }
 .grid-scroll {
   overflow-x: auto;
@@ -440,6 +462,14 @@ h3 {
 .fragment-sections span {
   border-bottom: 1px solid var(--line);
   padding-bottom: 7px;
+  transition:
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+.fragment-sections span.active-section {
+  color: var(--ink);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
 }
 .fragment-sections span:first-child {
   grid-column: part-a / divider;
@@ -452,6 +482,16 @@ h3 {
   text-align: center;
   font-size: 12px;
   margin-bottom: 9px;
+}
+.column-labels span {
+  padding: 2px 0;
+  border-radius: 3px;
+  font-variant-numeric: tabular-nums;
+}
+.column-labels span.active-column {
+  background: #263e36;
+  color: #fff;
+  font-weight: 600;
 }
 .fragment-row-label {
   align-self: center;

@@ -209,7 +209,28 @@ export default function MusicGame() {
     );
 
     setRandomIDs(updatedIDs);
-    createSequence(updatedIDs);
+    if (updatedIDs.length === 12) createSequence(updatedIDs);
+  };
+
+  const handleIncludeAll = () => {
+    stopAllAudio();
+    setSelectedLetters(alphabet.map((letter) => letter.toLowerCase()));
+  };
+
+  const handleSelectFragment = (id: string) => {
+    stopAllAudio();
+    setRestoreNumber("");
+    setRestoreError("");
+
+    const column = id.slice(1);
+    const updatedIDs = randomIDs.includes(id)
+      ? randomIDs.filter((item) => item !== id)
+      : [...randomIDs.filter((item) => item.slice(1) !== column), id].sort(
+          (first, second) => Number(first.slice(1)) - Number(second.slice(1)),
+        );
+
+    setRandomIDs(updatedIDs);
+    if (updatedIDs.length === 12) createSequence(updatedIDs);
   };
 
   const handleBarClick = (id: string) => {
@@ -270,6 +291,55 @@ export default function MusicGame() {
     }
   };
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        document.querySelector("dialog[open]")
+      )
+        return;
+
+      const target = event.target as HTMLElement | null;
+
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      )
+        return;
+
+      if (event.key === "r" || event.key === "R") {
+        if (selectedLetters.length < 2) return;
+        event.preventDefault();
+        if (target?.tagName === "BUTTON") target.blur();
+        randomise();
+
+        return;
+      }
+
+      if (event.code === "Space" || event.key === " ") {
+        event.preventDefault();
+        if (target?.tagName === "BUTTON") target.blur();
+        if (!isPlayingSequence && randomIDs.length !== 12) return;
+
+        if (isPlayingSequence) {
+          stopAllAudio();
+        } else {
+          void playSequence();
+        }
+      }
+    };
+
+    globalThis.addEventListener("keydown", handleKeyDown);
+
+    return () => globalThis.removeEventListener("keydown", handleKeyDown);
+  });
+
   return (
     <div className="music-workbench container">
       <div className="section-heading">
@@ -328,12 +398,16 @@ export default function MusicGame() {
           <strong>
             {randomIDs.length === 12
               ? `Combination ${combinationNumber.toLocaleString("en-GB")}`
-              : `${(selectedLetters.length ** 12).toLocaleString("en-GB")}`}
+              : randomIDs.length > 0
+                ? `${randomIDs.length} of 12 fragments chosen`
+                : `${(selectedLetters.length ** 12).toLocaleString("en-GB")}`}
           </strong>
           <span>
             {randomIDs.length === 12
               ? `out of ${(selectedLetters.length ** 12).toLocaleString("en-GB")} possible combinations`
-              : "possible combinations"}
+              : randomIDs.length > 0
+                ? "select one fragment in each column to play"
+                : "possible combinations"}
           </span>
         </div>
       </div>
@@ -408,6 +482,8 @@ export default function MusicGame() {
         alphabet={selectedLetters.map((letter) => letter.toUpperCase())}
         isPlayingSequence={isPlayingSequence}
         onBarClick={handleBarClick}
+        onIncludeAll={handleIncludeAll}
+        onSelectFragment={handleSelectFragment}
         onToggle={handleToggleMinuetto}
         playingBar={playingBar}
         randomIDs={randomIDs}
