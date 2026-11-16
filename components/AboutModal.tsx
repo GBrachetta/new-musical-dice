@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef } from "react";
 import Image from "next/image";
 
+import Icon from "@/components/Icon";
 import avatar from "@/public/assets/images/avatar.png";
 
 type AboutModalProps = {
@@ -17,20 +18,22 @@ export default function AboutModal({ onClose, open }: AboutModalProps) {
   useEffect(() => {
     const modal = dialog.current;
 
+    if (!modal) return;
+
     if (!open) {
-      modal?.close();
+      if (modal.open) modal.close();
 
       return;
     }
 
     const previousOverflow = document.body.style.overflow;
 
-    modal?.showModal();
+    if (!modal.open) modal.showModal();
     document.body.style.overflow = "hidden";
 
     return () => {
       document.body.style.overflow = previousOverflow;
-      modal?.close();
+      if (modal.open) modal.close();
     };
   }, [open]);
 
@@ -51,10 +54,7 @@ export default function AboutModal({ onClose, open }: AboutModalProps) {
           onClick={onClose}
           type="button"
         >
-          <i
-            aria-hidden="true"
-            className="fa-solid fa-xmark"
-          />
+          <Icon name="xmark" />
         </button>
         <div className="about-portrait">
           <Image

@@ -45,7 +45,6 @@ export default function AvailableGrid({
       >
         <div id="available-grid">
           <div className="fragment-sections">
-            <span />
             <span>Part A · 8 measures</span>
             <span>Part B · 16 measures</span>
           </div>
@@ -77,11 +76,12 @@ export default function AvailableGrid({
               {Array.from({ length: 12 }, (_, index) => {
                 const id = `${letter.toLowerCase()}${String(index + 1).padStart(2, "0")}`;
 
+                const isChosen = randomIDs.includes(id);
+
                 return (
                   <button
-                    aria-label={`Listen to fragment ${id.toUpperCase()}${playingBar === id ? ", currently playing" : ""}`}
-                    aria-pressed={randomIDs.includes(id)}
-                    className={`fragment-cell ${randomIDs.includes(id) ? "selected" : ""} ${playingBar === id ? "playing" : ""}`}
+                    aria-label={`Listen to fragment ${id.toUpperCase()}${isChosen ? ", chosen fragment" : ""}${playingBar === id ? ", currently playing" : ""}`}
+                    className={`fragment-cell ${isChosen ? "selected" : ""} ${playingBar === id ? "playing" : ""}`}
                     disabled={isPlayingSequence || !alphabet.includes(letter)}
                     id={id}
                     key={id}

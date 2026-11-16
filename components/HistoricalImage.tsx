@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
+import Icon from "@/components/Icon";
+
 const imageSource = "/assets/images/mozart-game.jpg";
 const imageDescription =
   "Historical rules and numbered tables for the musical dice game";
@@ -15,20 +17,22 @@ export default function HistoricalImage() {
   useEffect(() => {
     const modal = dialog.current;
 
+    if (!modal) return;
+
     if (!open) {
-      modal?.close();
+      if (modal.open) modal.close();
 
       return;
     }
 
     const previousOverflow = document.body.style.overflow;
 
-    modal?.showModal();
+    if (!modal.open) modal.showModal();
     document.body.style.overflow = "hidden";
 
     return () => {
       document.body.style.overflow = previousOverflow;
-      modal?.close();
+      if (modal.open) modal.close();
     };
   }, [open]);
 
@@ -86,10 +90,7 @@ export default function HistoricalImage() {
               onClick={() => setOpen(false)}
               type="button"
             >
-              <i
-                aria-hidden="true"
-                className="fa-solid fa-xmark"
-              />
+              <Icon name="xmark" />
             </button>
           </div>
           {hasOpened && (

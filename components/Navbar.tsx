@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import Icon from "@/components/Icon";
+
 const links = [
   { id: "game", label: "The game" },
   { id: "rules", label: "How it works" },
@@ -67,7 +69,7 @@ export default function Navbar() {
             aria-hidden="true"
             className="brand-mark"
           >
-            <i className="fa-solid fa-dice" />
+            <Icon name="dice" />
           </span>
           Musical Dice
         </a>

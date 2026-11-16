@@ -2,6 +2,8 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 
+import Icon from "@/components/Icon";
+
 type ContactModalProps = {
   open: boolean;
   onClose: () => void;
@@ -17,20 +19,22 @@ export default function ContactModal({ onClose, open }: ContactModalProps) {
   useEffect(() => {
     const modal = dialog.current;
 
+    if (!modal) return;
+
     if (!open) {
-      modal?.close();
+      if (modal.open) modal.close();
 
       return;
     }
 
     const previousOverflow = document.body.style.overflow;
 
-    modal?.showModal();
+    if (!modal.open) modal.showModal();
     document.body.style.overflow = "hidden";
 
     return () => {
       document.body.style.overflow = previousOverflow;
-      modal?.close();
+      if (modal.open) modal.close();
     };
   }, [open]);
 
@@ -73,10 +77,7 @@ export default function ContactModal({ onClose, open }: ContactModalProps) {
           onClick={onClose}
           type="button"
         >
-          <i
-            aria-hidden="true"
-            className="fa-solid fa-xmark"
-          />
+          <Icon name="xmark" />
         </button>
         <div className="contact-introduction">
           <p className="contact-kicker">Guillermo Brachetta</p>
@@ -137,10 +138,7 @@ export default function ContactModal({ onClose, open }: ContactModalProps) {
               disabled={sending}
               type="submit"
             >
-              <i
-                aria-hidden="true"
-                className={`fa-solid ${sending ? "fa-spinner fa-spin" : "fa-paper-plane"}`}
-              />
+              <Icon name={sending ? "spinner" : "paper-plane"} />
               {sending ? "Sending…" : "Send message"}
             </button>
           </fieldset>

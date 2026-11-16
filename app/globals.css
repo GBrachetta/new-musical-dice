@@ -9,6 +9,46 @@
   --chosen: #e7b39b;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+p,
+ul,
+ol {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+h1,
+h2,
+h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+button,
+input,
+textarea {
+  margin: 0;
+  line-height: inherit;
+}
+fieldset {
+  min-width: 0;
+}
+table {
+  border-collapse: collapse;
+}
+th {
+  text-align: inherit;
+}
+img {
+  vertical-align: middle;
+}
+summary {
+  cursor: pointer;
+}
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
@@ -26,7 +66,7 @@ textarea {
   font: inherit;
 }
 a,
-.page-footer .btn-link {
+.page-footer .footer-link-button {
   color: var(--accent);
   text-decoration: none;
   font-weight: 700;
@@ -36,8 +76,8 @@ a:hover,
 a:focus-visible,
 .page-footer a:hover,
 .page-footer a:focus-visible,
-.page-footer .btn-link:hover,
-.page-footer .btn-link:focus-visible {
+.page-footer .footer-link-button:hover,
+.page-footer .footer-link-button:focus-visible {
   color: #217b66;
   font-weight: 700;
   text-decoration: none;
@@ -45,8 +85,7 @@ a:focus-visible,
 button {
   cursor: pointer;
 }
-button,
-.btn {
+button {
   transition:
     color 0.15s ease-in-out,
     background-color 0.15s ease-in-out,
@@ -69,6 +108,8 @@ input[type="checkbox"] {
   accent-color: var(--accent);
 }
 .container {
+  width: 100%;
+  margin-inline: auto;
   max-width: 1200px;
   padding-left: 30px;
   padding-right: 30px;
@@ -343,7 +384,7 @@ h3 {
   font-size: 13px;
   font-weight: 600;
 }
-.workbench-button i {
+.workbench-button .app-icon {
   font-size: 12px;
 }
 .workbench-button:hover:not(:disabled) {
@@ -379,25 +420,38 @@ h3 {
 #available-grid {
   min-width: 780px;
 }
-.fragment-row {
-  display: grid;
-  grid-template-columns: 82px repeat(12, minmax(0, 1fr));
-  gap: 5px;
-  margin-bottom: 5px;
-}
+.fragment-row,
 .fragment-sections {
   display: grid;
-  grid-template-columns: 82px 4fr 8fr;
+  grid-template-columns:
+    82px [part-a] repeat(4, minmax(0, 1fr)) [divider] 0
+    [part-b] repeat(8, minmax(0, 1fr));
   gap: 5px;
+}
+.fragment-row {
+  margin-bottom: 5px;
+}
+.fragment-row::after {
+  content: "";
+  grid-column: divider;
+  grid-row: 1;
+}
+.fragment-sections {
   font-size: 12px;
   text-transform: uppercase;
   color: var(--muted);
   letter-spacing: 1px;
   margin-bottom: 10px;
 }
-.fragment-sections span:not(:first-child) {
+.fragment-sections span {
   border-bottom: 1px solid var(--line);
   padding-bottom: 7px;
+}
+.fragment-sections span:first-child {
+  grid-column: part-a / divider;
+}
+.fragment-sections span:last-child {
+  grid-column: part-b / -1;
 }
 .column-labels {
   color: var(--muted);
@@ -420,12 +474,13 @@ h3 {
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
-.fragment-cell:nth-child(6) {
-  margin-left: 5px;
-}
 .fragment-cell:hover:not(:disabled) {
   background: #ddd4c5;
   border-color: var(--accent);
+}
+.fragment-cell:focus-visible,
+.row-switch:focus-visible {
+  outline-offset: 1px;
 }
 .fragment-cell.selected {
   background: var(--chosen);
@@ -482,7 +537,16 @@ h3 {
 }
 @media (pointer: coarse) {
   .row-switch {
-    height: 34px;
+    position: relative;
+  }
+  .row-switch::after {
+    content: "";
+    position: absolute;
+    inset: -11px -4px;
+  }
+  .fragment-row-control,
+  .grid-filter {
+    min-height: 44px;
   }
 }
 .grid-legend {
@@ -751,12 +815,25 @@ h3 {
   margin-top: 24px;
 }
 .footer-links a,
-.page-footer .btn-link {
+.page-footer .footer-link-button {
   font-size: 13px;
   font-weight: 700;
 }
-.page-footer .btn-link {
-  color: var(--accent);
+.footer-link-button {
+  position: relative;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  line-height: 1.5;
+  text-align: left;
+  touch-action: manipulation;
+}
+@media (pointer: coarse) {
+  .footer-link-button::after {
+    content: "";
+    position: absolute;
+    inset: -12px -8px;
+  }
 }
 .footer-contact-block {
   padding: 24px 0 0 32px;
@@ -775,7 +852,7 @@ h3 {
 .footer-contact span {
   margin-top: 5px;
 }
-.footer-contact-block > .btn-link {
+.footer-contact-block > .footer-link-button {
   display: inline-block;
   margin-top: 18px;
 }
@@ -796,7 +873,7 @@ h3 {
     padding-top: 28px;
     line-height: 24px;
   }
-  .footer-contact-block > .btn-link {
+  .footer-contact-block > .footer-link-button {
     margin-top: auto;
     line-height: 24px;
   }
@@ -879,10 +956,10 @@ h3 {
   color: #fffdf8;
   box-shadow: 0 6px 18px #263e3633;
 }
-#btn-to-top i {
+#btn-to-top .app-icon {
   transition: transform 0.15s ease;
 }
-#btn-to-top:hover i {
+#btn-to-top:hover .app-icon {
   transform: translateY(-2px);
 }
 @media (max-width: 991px) {
@@ -970,11 +1047,11 @@ h3 {
   }
 }
 
-.history-disclosure-toggle i {
+.history-disclosure-toggle .app-icon {
   font-size: 11px;
   transition: transform 0.2s ease;
 }
-.history-disclosure-toggle[aria-expanded="true"] i {
+.history-disclosure-toggle[aria-expanded="true"] .app-icon {
   transform: rotate(180deg);
 }
 .disclosure-content {
@@ -997,44 +1074,26 @@ h3 {
   opacity: 0.55;
 }
 .historical-image-modal {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  overflow-y: auto;
   width: min(1200px, calc(100vw - 32px));
   max-width: none;
+  max-height: calc(100vh - 32px);
   max-height: calc(100dvh - 32px);
   padding: 20px;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--paper);
   color: var(--ink);
-  opacity: 0;
-  transform: scale(0.97) translateY(8px);
-  transition:
-    opacity 0.18s ease,
-    transform 0.18s ease,
-    display 0.18s allow-discrete,
-    overlay 0.18s allow-discrete;
 }
 .historical-image-modal[open] {
-  opacity: 1;
-  transform: scale(1) translateY(0);
+  animation: modal-enter 0.18s ease;
 }
 .historical-image-modal::backdrop {
-  background: #18201900;
-  transition:
-    background-color 0.18s ease,
-    display 0.18s allow-discrete,
-    overlay 0.18s allow-discrete;
-}
-.historical-image-modal[open]::backdrop {
   background: #182019bb;
-}
-@starting-style {
-  .historical-image-modal[open] {
-    opacity: 0;
-    transform: scale(0.97) translateY(8px);
-  }
-  .historical-image-modal[open]::backdrop {
-    background: #18201900;
-  }
+  animation: backdrop-enter 0.18s ease;
 }
 .historical-modal-toolbar {
   display: flex;
@@ -1058,24 +1117,36 @@ h3 {
 .image-modal-close:hover {
   background: var(--chosen);
 }
+.image-modal-close:focus,
+.image-modal-close:focus-visible,
+.about-dialog-close:focus,
+.about-dialog-close:focus-visible {
+  outline: none;
+}
 .historical-modal-content > img {
   display: block;
   width: 100%;
   height: auto;
+  max-height: calc(100vh - 125px);
   max-height: calc(100dvh - 125px);
   object-fit: contain;
 }
 @media (prefers-reduced-motion: reduce) {
   .disclosure-content,
-  .history-disclosure-toggle i {
+  .history-disclosure-toggle .app-icon {
     transition: none;
   }
 }
 
 /* Author portrait and biography. Native dialog keeps focus within the modal. */
 .about-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  overflow-y: auto;
   width: min(820px, calc(100vw - 32px));
   max-width: none;
+  max-height: calc(100vh - 32px);
   max-height: calc(100dvh - 32px);
   padding: 0;
   border: 1px solid #ded7c9;
@@ -1084,39 +1155,32 @@ h3 {
   color: var(--ink);
   box-shadow: 0 24px 80px #19251c33;
   text-align: left;
-  opacity: 0;
-  transform: translateY(14px) scale(0.98);
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease,
-    display 0.2s allow-discrete,
-    overlay 0.2s allow-discrete;
 }
 .about-dialog[open] {
-  opacity: 1;
-  transform: translateY(0) scale(1);
+  animation: modal-enter 0.2s ease;
 }
 .about-dialog::backdrop {
-  background: #18201900;
-  backdrop-filter: blur(0);
-  transition:
-    background-color 0.2s ease,
-    backdrop-filter 0.2s ease,
-    display 0.2s allow-discrete,
-    overlay 0.2s allow-discrete;
-}
-.about-dialog[open]::backdrop {
   background: #18201999;
+  -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
+  animation: backdrop-enter 0.2s ease;
 }
-@starting-style {
-  .about-dialog[open] {
+@keyframes modal-enter {
+  from {
     opacity: 0;
-    transform: translateY(14px) scale(0.98);
+    transform: translateY(10px) scale(0.98);
   }
-  .about-dialog[open]::backdrop {
-    background: #18201900;
-    backdrop-filter: blur(0);
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes backdrop-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 .about-dialog-content {
@@ -1344,35 +1408,53 @@ h3 {
     grid-template-columns: 1fr;
   }
   .contact-introduction {
-    padding: 30px 26px 24px;
+    padding: 18px 20px 14px;
   }
   .contact-introduction .contact-kicker {
-    margin-bottom: 12px;
-    padding-right: 30px;
+    margin-bottom: 6px;
+    padding-right: 36px;
   }
   .contact-introduction h2 {
-    font-size: 28px;
+    font-size: 22px;
   }
   .contact-introduction .about-divider {
-    margin: 16px 0;
+    margin: 10px 0;
+  }
+  .contact-introduction > p:not(.contact-kicker) {
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 0;
   }
   .contact-direct {
-    padding-top: 8px;
+    display: none;
   }
   .contact-form {
-    padding: 26px;
+    padding: 16px 20px 20px;
+  }
+  .contact-field {
+    gap: 4px;
+    margin-bottom: 12px;
   }
   .contact-field input,
   .contact-field textarea {
+    padding: 8px 11px;
     font-size: 16px;
+  }
+  .contact-field textarea {
+    min-height: 76px;
   }
 }
 
-/* Keep focus styling consistent with the requested appearance. */
-*:focus,
-*:focus-visible {
+/* Suppress focus rings when the browser does not request a visible indicator or on touch devices. */
+*:focus:not(:focus-visible) {
   outline: none !important;
   box-shadow: none !important;
+}
+@media (pointer: coarse) {
+  *:focus,
+  *:focus-visible {
+    outline: none !important;
+  }
 }
 
 .audio-error {
@@ -1423,4 +1505,30 @@ h3 {
 }
 .combination-restore form .audio-error {
   color: var(--accent);
+}
+
+.history-titles {
+  padding-left: 1rem;
+}
+.history-table-wrap {
+  margin: 3rem 0 1.5rem;
+}
+.app-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+.app-icon-spin {
+  animation: app-icon-spin 1s linear infinite;
+}
+@keyframes app-icon-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-icon-spin {
+    animation: none;
+  }
 }

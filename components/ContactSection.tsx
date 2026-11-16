@@ -10,7 +10,7 @@ export default function ContactSection() {
   return (
     <>
       <button
-        className="btn btn-link p-0"
+        className="footer-link-button"
         onClick={() => setOpen(true)}
         type="button"
       >

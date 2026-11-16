@@ -1,3 +1,5 @@
+import Icon from "@/components/Icon";
+
 export type Minuetto = {
   name: string;
   path: string;
@@ -40,8 +42,14 @@ export default function MinuettoList({
             aria-hidden="true"
             className="minuetto-icon"
           >
-            <i
-              className={`fa-solid ${loadingMinuetto === minuetto.name ? "fa-spinner fa-spin" : playingMinuetto === minuetto.name ? "fa-stop" : "fa-play"}`}
+            <Icon
+              name={
+                loadingMinuetto === minuetto.name
+                  ? "spinner"
+                  : playingMinuetto === minuetto.name
+                    ? "stop"
+                    : "play"
+              }
             />
           </span>
         </button>

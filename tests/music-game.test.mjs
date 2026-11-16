@@ -187,3 +187,53 @@ test("selection changes retain the two-row minimum and twelve valid fragments", 
   assert.equal(grid.randomIDs.length, 12);
   assert.ok(grid.randomIDs.every((id) => /^[kl]/.test(id)));
 });
+
+test("row switches preserve valid fragments and replace only excluded ones", () => {
+  const game = harness();
+
+  for (const letter of "abcdefghij") game.grid().onToggle(letter);
+  const original = game.grid().randomIDs.join(",");
+
+  game.grid().onToggle("a");
+  assert.equal(game.grid().randomIDs.join(","), original);
+  game.grid().onToggle("a");
+  assert.equal(game.grid().randomIDs.join(","), original);
+
+  game.grid().onToggle("a");
+  const removed = original[0];
+
+  game.grid().onToggle(removed);
+  assert.equal(game.grid().randomIDs.length, 12);
+
+  for (const [index, id] of original.split(",").entries()) {
+    const updated = game.grid().randomIDs[index];
+
+    if (id[0] === removed) {
+      assert.notEqual(updated[0], removed);
+      assert.equal(updated.slice(1), id.slice(1));
+    } else {
+      assert.equal(updated, id);
+    }
+  }
+});
+
+test("a second click stops the same fragment while loading or playing", () => {
+  for (const started of [false, true]) {
+    const game = harness();
+
+    game.grid().onBarClick("a01");
+    const sound = game.sounds[0];
+
+    if (started) sound.options.onplay();
+    game.grid().onBarClick("a01");
+    sound.options.onplay();
+
+    assert.equal(game.sounds.length, 1);
+    assert.ok(sound.unloaded);
+    assert.equal(game.grid().playingBar, null);
+
+    game.grid().onBarClick("a01");
+    game.sounds[1].options.onplay();
+    assert.equal(game.grid().playingBar, "a01");
+  }
+});

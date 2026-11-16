@@ -165,7 +165,7 @@ export default function Home() {
 
                   <p>The titles of the supposed Mozart compositions are:</p>
 
-                  <ul className="pl-3">
+                  <ul className="history-titles">
                     <li className="paragraphs">
                       <em>
                         Anleitung zum Componieren von Walzern so viele man will
@@ -227,44 +227,42 @@ export default function Home() {
                     sentence construction:
                   </p>
 
-                  <div className="row justify-content-center mb-4 mt-5">
-                    <div className="col-12">
-                      <table className="history-table">
-                        <thead>
-                          <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">A</th>
-                            <th scope="col">B</th>
-                            <th scope="col">C</th>
-                            <th scope="col">D</th>
-                          </tr>
-                        </thead>
+                  <div className="history-table-wrap">
+                    <table className="history-table">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">A</th>
+                          <th scope="col">B</th>
+                          <th scope="col">C</th>
+                          <th scope="col">D</th>
+                        </tr>
+                      </thead>
 
-                        <tbody>
-                          <tr>
-                            <th scope="row">1</th>
-                            <td>The cow</td>
-                            <td>ran</td>
-                            <td>past</td>
-                            <td>the field.</td>
-                          </tr>
-                          <tr>
-                            <th scope="row">2</th>
-                            <td>The pig</td>
-                            <td>walked</td>
-                            <td>through</td>
-                            <td>the yard.</td>
-                          </tr>
-                          <tr>
-                            <th scope="row">3</th>
-                            <td>The sheep</td>
-                            <td>ran</td>
-                            <td>into</td>
-                            <td>the marsh.</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+                      <tbody>
+                        <tr>
+                          <th scope="row">1</th>
+                          <td>The cow</td>
+                          <td>ran</td>
+                          <td>past</td>
+                          <td>the field.</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">2</th>
+                          <td>The pig</td>
+                          <td>walked</td>
+                          <td>through</td>
+                          <td>the yard.</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">3</th>
+                          <td>The sheep</td>
+                          <td>ran</td>
+                          <td>into</td>
+                          <td>the marsh.</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
 
                   <p className="paragraphs">

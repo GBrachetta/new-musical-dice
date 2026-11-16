@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import Icon from "@/components/Icon";
+
 export default function BackToTop() {
   const [visible, setVisible] = useState(false);
 
@@ -27,10 +29,7 @@ export default function BackToTop() {
       id="btn-to-top"
       tabIndex={visible ? 0 : -1}
     >
-      <i
-        aria-hidden="true"
-        className="fa-solid fa-arrow-up"
-      />
+      <Icon name="arrow-up" />
     </a>
   );
 }

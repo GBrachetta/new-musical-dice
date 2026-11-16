@@ -2,6 +2,8 @@
 
 import { type ReactNode, useId, useState } from "react";
 
+import Icon from "@/components/Icon";
+
 type AnimatedDisclosureProps = {
   children: ReactNode;
   id?: string;
@@ -29,10 +31,7 @@ export default function AnimatedDisclosure({
         type="button"
       >
         <span>{title}</span>
-        <i
-          aria-hidden="true"
-          className="fa-solid fa-chevron-down"
-        />
+        <Icon name="chevron-down" />
       </button>
       <div
         className={`disclosure-content ${open ? "is-open" : ""}`}

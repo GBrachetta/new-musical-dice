@@ -5,6 +5,7 @@ import { Howl } from "howler";
 
 import AnimatedDisclosure from "@/components/AnimatedDisclosure";
 import AvailableGrid from "@/components/AvailableGrid";
+import Icon from "@/components/Icon";
 import {
   combinationNumber as getCombinationNumber,
   orderSelection,
@@ -28,6 +29,7 @@ function getRandomItem<T>(items: T[]): T {
 export default function MusicGame() {
   const currentPreview = useRef<Howl | null>(null);
   const currentMinuettoName = useRef<string | null>(null);
+  const currentFragment = useRef<string | null>(null);
   const sequencePlayer = useRef<SequencePlayer | null>(null);
   const sequenceRun = useRef(0);
 
@@ -117,6 +119,7 @@ export default function MusicGame() {
 
     currentPreview.current = null;
     currentMinuettoName.current = null;
+    currentFragment.current = null;
 
     setPlayingMinuetto(null);
     setLoadingMinuetto(null);
@@ -187,11 +190,33 @@ export default function MusicGame() {
       : [...selectedLetters, letter];
 
     setSelectedLetters(newSelection);
-    randomiseSelection(newSelection);
+
+    if (randomIDs.length === 0) {
+      randomiseSelection(newSelection);
+
+      return;
+    }
+
+    stopAllAudio();
+    if (!randomIDs.some((id) => !newSelection.includes(id[0]))) return;
+
+    const updatedIDs = randomIDs.map((id) =>
+      newSelection.includes(id[0])
+        ? id
+        : `${getRandomItem(newSelection)}${id.slice(1)}`,
+    );
+
+    setRandomIDs(updatedIDs);
+    createSequence(updatedIDs);
   };
 
   const handleBarClick = (id: string) => {
+    const isSameFragment = currentFragment.current === id;
+
     stopAllAudio();
+    if (isSameFragment) return;
+
+    currentFragment.current = id;
     startPreview(`/assets/music/cells/${id}.mp3`, "fragment", () =>
       setPlayingBar(id),
     );
@@ -270,10 +295,7 @@ export default function MusicGame() {
           id="btn-randomise"
           onClick={randomise}
         >
-          <i
-            aria-hidden="true"
-            className="fa-solid fa-shuffle"
-          />
+          <Icon name="shuffle" />
           Randomise
         </button>{" "}
         <button
@@ -288,10 +310,7 @@ export default function MusicGame() {
             }
           }}
         >
-          <i
-            aria-hidden="true"
-            className={`fa-solid ${isPlayingSequence ? "fa-stop" : "fa-play"}`}
-          />
+          <Icon name={isPlayingSequence ? "stop" : "play"} />
           {isLoading
             ? "Cancel loading"
             : isPlayingSequence

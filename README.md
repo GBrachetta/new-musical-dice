@@ -71,16 +71,16 @@ You can explore the game locally without configuring email delivery.
 
 ## Technical overview
 
-| Technology               | Purpose                                            |
-| ------------------------ | -------------------------------------------------- |
-| Next.js App Router       | Page structure, rendering, and production builds   |
-| React and TypeScript     | Interactive controls and application state         |
-| Web Audio API            | Generated composition playback                     |
-| Howler.js                | Complete-minuetto and individual-fragment previews |
-| EmailJS                  | Contact form delivery                              |
-| Bootstrap and custom CSS | Layout utilities and application styling           |
-| Font Awesome             | Interface icons                                    |
-| Montserrat               | Typography                                         |
+| Technology           | Purpose                                            |
+| -------------------- | -------------------------------------------------- |
+| Next.js App Router   | Page structure, rendering, and production builds   |
+| React and TypeScript | Interactive controls and application state         |
+| Web Audio API        | Generated composition playback                     |
+| Howler.js            | Complete-minuetto and individual-fragment previews |
+| EmailJS              | Contact form delivery                              |
+| Custom CSS           | Layout and application styling                     |
+| Font Awesome         | Nine inline SVG icons                              |
+| Montserrat           | Typography                                         |
 
 ### Audio playback
 
@@ -137,3 +137,5 @@ Prior written permission is required to reuse the original code, compositions, o
 This is a source-available project, not an open-source release. Public visibility does not grant general reuse rights. Third-party materials retain their own licences, and applicable legal exceptions and hosting-platform permissions remain unaffected.
 
 See [LICENSE](LICENSE) for the full copyright and permission notice.
+
+Interface icons from [Font Awesome Free](https://fontawesome.com/), © Fonticons, Inc., licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
